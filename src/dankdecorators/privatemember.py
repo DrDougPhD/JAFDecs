@@ -39,30 +39,27 @@ def saveproperties(prefix: str = '_'):
     def class_decorator(cls: type[Any]):
         @functools.wraps(cls)
         def wrapper(*args, **kwargs):
-            print('wwwwww')
-            print('wwwww')
             return cls(*args, **kwargs)
+
+        def wrapped_getter(instance: cls, member: property, private_name: str):
+            if not hasattr(instance, private_name):
+                value = member.fget(self=instance)
+                setattr(instance, private_name, value)
+            
+            else:
+                value = getattr(instance, private_name)
+
+            return value
 
         for name, member in vars(cls).items():
             if not isinstance(member, property):
                 continue
 
-            private_name = f'{prefix}{name}'
-            def wrapped_getter(instance: cls):
-                if not hasattr(instance, private_name):
-                    print('Initializing...')
-                    value = member.fget(self=instance)
-                    setattr(instance, private_name, value)
-                    print(dir(instance))
-                
-                else:
-                    print('Retrieving from cache...')
-                    value = getattr(instance, private_name)
+            if name.startswith('__') and name.endswith('__'):
+                continue
 
-                return value
-            
             decorated_member = property(
-                fget=wrapped_getter,
+                fget=functools.partial(wrapped_getter, member=member, private_name=f'{prefix}{name}'),
                 fset=member.fset,
                 fdel=member.fdel,
                 doc=member.__doc__

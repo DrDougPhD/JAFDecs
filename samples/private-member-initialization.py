@@ -5,7 +5,7 @@ from dankdecorators import privatemember
 class TestExample:
     @property
     def sample_property(self):
-        print('Initializing...')
+        print('Initializing within function...')
         return 5
 
 
