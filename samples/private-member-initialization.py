@@ -17,17 +17,17 @@ print(example.sample_property)
 print(example.sample_property)
 
 
-# @privatemember.saveproperties
-# class TestExample2:
-#     @property
-#     def sample_property(self):
-#         print('Initializing...')
-#         return 1
+@privatemember.saveproperties
+class TestExample2:
+    @property
+    def sample_property(self):
+        print('Initializing within function ...')
+        return 1
 
 
-# example = TestExample2()
-# print(example.sample_property)
-# print(example.sample_property)
-# print(example.sample_property)
-# print(example.sample_property)
-# print(example.sample_property)
+example = TestExample2()
+print(example.sample_property)
+print(example.sample_property)
+print(example.sample_property)
+print(example.sample_property)
+print(example.sample_property)

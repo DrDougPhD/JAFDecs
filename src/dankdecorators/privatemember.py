@@ -1,5 +1,5 @@
 import functools
-from typing import Any
+from typing import Any, Type
 
 
 def save():
@@ -10,7 +10,7 @@ def save_as():
     pass
 
 
-def saveproperties(prefix: str = '_'):
+def saveproperties(cls: Type[Any] | None = None, *, prefix: str = '_'):
     """Decorator for classes to save all properties as private members.
     
     The example below will save a member variable named `_member` to an
@@ -35,39 +35,39 @@ def saveproperties(prefix: str = '_'):
     This took a long time to initialize!
     >>> print(x.member)
     """
+
+    if cls is None:
+        return functools.partial(saveproperties, prefix=prefix)
     
-    def class_decorator(cls: type[Any]):
-        @functools.wraps(cls)
-        def wrapper(*args, **kwargs):
-            return cls(*args, **kwargs)
+    @functools.wraps(cls)
+    def wrapper(*args, **kwargs):
+        return cls(*args, **kwargs)
 
-        def wrapped_getter(instance: cls, member: property, private_name: str):
-            if not hasattr(instance, private_name):
-                value = member.fget(self=instance)
-                setattr(instance, private_name, value)
-            
-            else:
-                value = getattr(instance, private_name)
-
-            return value
-
-        for name, member in vars(cls).items():
-            if not isinstance(member, property):
-                continue
-
-            if name.startswith('__') and name.endswith('__'):
-                continue
-
-            decorated_member = property(
-                fget=functools.partial(wrapped_getter, member=member, private_name=f'{prefix}{name}'),
-                fset=member.fset,
-                fdel=member.fdel,
-                doc=member.__doc__
-            )
-
-            # Overwrite the property to use the new method.
-            setattr(cls, name, decorated_member)
+    def wrapped_getter(instance: cls, member: property, private_name: str):
+        if not hasattr(instance, private_name):
+            value = member.fget(self=instance)
+            setattr(instance, private_name, value)
         
-        return wrapper
+        else:
+            value = getattr(instance, private_name)
 
-    return class_decorator
+        return value
+
+    for name, member in vars(cls).items():
+        if not isinstance(member, property):
+            continue
+
+        if name.startswith('__') and name.endswith('__'):
+            continue
+
+        decorated_member = property(
+            fget=functools.partial(wrapped_getter, member=member, private_name=f'{prefix}{name}'),
+            fset=member.fset,
+            fdel=member.fdel,
+            doc=member.__doc__
+        )
+
+        # Overwrite the property to use the new method.
+        setattr(cls, name, decorated_member)
+    
+    return wrapper
