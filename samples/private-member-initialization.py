@@ -1,7 +1,7 @@
 from jafdecs import worm
 
 
-@worm.saveproperties(prefix='_')
+@worm.onproperties(prefix='_')
 class TestExample:
     @property
     def sample_property(self):
@@ -17,7 +17,7 @@ print(example.sample_property)
 print(example.sample_property)
 
 
-@worm.saveproperties
+@worm.onproperties
 class TestExample2:
     @property
     def sample_property(self):
