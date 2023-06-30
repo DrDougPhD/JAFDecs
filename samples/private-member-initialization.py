@@ -1,7 +1,7 @@
-from dankdecorators import privatemember
+from jafdecs import worm
 
 
-@privatemember.saveproperties(prefix='_')
+@worm.saveproperties(prefix='_')
 class TestExample:
     @property
     def sample_property(self):
@@ -17,7 +17,7 @@ print(example.sample_property)
 print(example.sample_property)
 
 
-@privatemember.saveproperties
+@worm.saveproperties
 class TestExample2:
     @property
     def sample_property(self):
