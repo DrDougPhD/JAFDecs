@@ -2,7 +2,7 @@ import functools
 from typing import Callable, Any
 
 
-def by(func: Callable[[Any], Any], condition: Callable[[Any], Any]):
+def by(func: Callable[[Any], Any], condition: Callable[[Any], bool]):
     def decorator(decorated):
         @functools.wraps(decorated)
         def wrapper(*args, **kwargs):
