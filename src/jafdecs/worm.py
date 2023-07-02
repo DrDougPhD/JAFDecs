@@ -41,9 +41,9 @@ def onproperties(cls: Optional[Type[Any]] = None, *, prefix: str = '_'):
         #      @worm.onproperties()
         return functools.partial(onproperties, prefix=prefix)
     
-    @functools.wraps(cls)
-    def wrapper(*args, **kwargs):
-        return cls(*args, **kwargs)
+    @functools.wraps(cls, updated=[])
+    class DecoratedClass(cls):
+        pass
 
     def wrapped_getter(instance: cls, member: property, private_name: str):
         if not hasattr(instance, private_name):
@@ -57,20 +57,18 @@ def onproperties(cls: Optional[Type[Any]] = None, *, prefix: str = '_'):
 
     for name, member in vars(cls).items():
         # Skip over anything that is not annotated with @property
-        if not isinstance(member, property):
-            continue
+        if isinstance(member, property):
+            decorated_member = property(
+                fget=functools.partial(wrapped_getter, member=member, private_name=f'{prefix}{name}'),
+                fset=member.fset,
+                fdel=member.fdel,
+                doc=member.__doc__
+            )
 
-        if name.startswith('__') and name.endswith('__'):
-            continue
-
-        decorated_member = property(
-            fget=functools.partial(wrapped_getter, member=member, private_name=f'{prefix}{name}'),
-            fset=member.fset,
-            fdel=member.fdel,
-            doc=member.__doc__
-        )
-
-        # Overwrite the property to use the new method.
-        setattr(cls, name, decorated_member)
+            # Overwrite the property to use the new method.
+            setattr(DecoratedClass, name, decorated_member)
+        
+        else:
+            continue        
     
-    return wrapper
+    return DecoratedClass
