@@ -3,10 +3,10 @@ decorated items.
 """
 
 import functools
-from typing import Any, Type
+from typing import Any, Type, Optional
 
 
-def onproperties(cls: Type[Any] | None = None, *, prefix: str = '_'):
+def onproperties(cls: Optional[Type[Any]] = None, *, prefix: str = '_'):
     """Decorator for classes to compute a property once when it is first read
     and cache the value as private member to not be recomputed again.
     
